@@ -30,6 +30,8 @@ e o histórico de commits mostra isso.
 ```
 biblioteca-tdd/
 ├── pom.xml                         # dependências e plugins (JUnit 5, Surefire, Failsafe, JaCoCo)
+├── mvnw, mvnw.cmd, .mvn/           # Maven Wrapper: roda o Maven sem instalar
+├── .vscode/                        # extensões recomendadas e configurações do VS Code
 ├── src/main/java/br/edu/ifmt/biblioteca/
 │   ├── dominio/                    # regras de negócio: Livro, Exemplar, Usuario, Emprestimo, Cpf...
 │   ├── verificacao/                # geração e envio do código por e-mail
@@ -51,18 +53,44 @@ biblioteca-tdd/
     └── CONTEXTO.md                 # diário de bordo: decisões, estado atual e próximos passos
 ```
 
+## Preparar o ambiente (Windows + VS Code)
+
+Só é preciso instalar o JDK 17, o Git e o VS Code. O Maven não precisa ser instalado: o projeto
+traz o **Maven Wrapper** (`mvnw`), que baixa a versão certa (3.9.11) na primeira execução.
+
+No PowerShell:
+
+```powershell
+winget install --id EclipseAdoptium.Temurin.17.JDK --exact
+winget install --id Git.Git --exact
+winget install --id Microsoft.VisualStudioCode --exact
+```
+
+Feche e abra o terminal (para o `PATH` novo valer) e depois:
+
+```powershell
+code --install-extension vscjava.vscode-java-pack
+git clone https://github.com/GaeL-mdcr/biblioteca-tdd
+cd biblioteca-tdd
+code .
+```
+
+Ao abrir a pasta, o VS Code sugere as extensões recomendadas do projeto (`.vscode/extensions.json`):
+aceite. Os testes aparecem no painel **Testing** (ícone de frasco), onde dá para rodar e depurar
+cada um.
+
 ## Como rodar os testes
 
-Precisa do JDK 17 ou mais novo e do Maven 3.9 (IntelliJ, NetBeans e Eclipse já trazem o Maven
-embutido).
-
 ```bash
-mvn test       # testes de unidade (domínio e serviços)
-mvn verify     # unidade + integração com SQLite + relatório de cobertura
+.\mvnw.cmd test       # Windows: testes de unidade (domínio e serviços)
+.\mvnw.cmd verify     # Windows: unidade + integração com SQLite + relatório de cobertura
+
+./mvnw test           # Linux/Mac
+./mvnw verify
 ```
 
 O relatório de cobertura fica em `target/site/jacoco/index.html`. O GitHub Actions roda o
-`mvn verify` a cada push (aba **Actions**).
+`verify` a cada push, no Linux e no Windows (aba **Actions**).
 
 ## Configuração do e-mail
 

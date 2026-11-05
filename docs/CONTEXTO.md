@@ -28,6 +28,7 @@ Registro das decisões, do estado atual e dos próximos passos. Os requisitos co
 | 04/11/2026 | Trilha de auditoria só de inclusão, com triggers no SQLite |
 | 05/11/2026 | Separação em fase 1 (71 métodos, compromisso) e fase 2 (só se sobrar tempo) |
 | 05/11/2026 | Etapa 2: repositório público, Maven com JUnit 5, Surefire, Failsafe e JaCoCo, GitHub Actions |
+| 05/11/2026 | Desenvolvimento no VS Code (Extension Pack for Java); Maven Wrapper 3.3.4 para não precisar instalar o Maven |
 
 ## Estado atual
 

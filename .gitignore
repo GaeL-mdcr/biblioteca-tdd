@@ -9,7 +9,9 @@ src/main/resources/config.properties
 # IDEs
 .idea/
 *.iml
-.vscode/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
 .settings/
 .project
 .classpath
