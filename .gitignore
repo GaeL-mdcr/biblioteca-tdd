@@ -1,0 +1,25 @@
+# Build do Maven
+target/
+
+# Banco de dados local e configuração com a senha de app do e-mail
+*.db
+*.db-journal
+src/main/resources/config.properties
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+nbproject/
+nbactions.xml
+out/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Arquivos locais do Claude Code (o settings.json do projeto continua versionado)
+.claude/settings.local.json

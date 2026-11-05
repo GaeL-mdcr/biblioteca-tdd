@@ -1,0 +1,13 @@
+# Modelo da configuração de e-mail usada para enviar o código de verificação.
+#
+# Copie este arquivo para config.properties (na mesma pasta) e preencha os valores.
+# O config.properties está no .gitignore: a senha de app nunca vai para o GitHub.
+#
+# A senha de app é criada em https://myaccount.google.com/apppasswords e só existe
+# em contas Google com a verificação em 2 etapas ativada. Ela serve só para enviar
+# e-mails; ninguém entra no sistema com senha.
+
+email.smtp.host=smtp.gmail.com
+email.smtp.porta=587
+email.remetente=seu.email@gmail.com
+email.senhaDeApp=coloque-aqui-a-senha-de-app-de-16-digitos

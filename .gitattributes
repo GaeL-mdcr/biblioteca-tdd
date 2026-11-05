@@ -1,0 +1,7 @@
+# Mantém LF no repositório mesmo quando alguém edita no Windows
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.png binary
+*.jpg binary
+*.jar binary
