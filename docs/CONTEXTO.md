@@ -39,7 +39,7 @@ Registro das decisões, do estado atual e dos próximos passos. Os requisitos co
 
 ## Próximos passos
 
-Etapa 3, na ordem da seção 12 dos requisitos:
+Etapa 3, seguindo o plano em [`plano-etapa-3.md`](plano-etapa-3.md), na ordem da seção 12 dos requisitos:
 
 1. `Cpf`, `Isbn`, `CalculadoraMulta`, `CalculadoraSuspensao`
 2. `Livro` e `Exemplar`

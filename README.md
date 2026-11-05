@@ -52,6 +52,7 @@ biblioteca-tdd/
 └── docs/
     ├── requisitos.md               # Etapa 1: classes, métodos, regras de negócio e fases
     ├── arquitetura.md              # camadas, princípios (SOLID, GoF, GRASP) e kit de testes
+    ├── plano-etapa-3.md            # plano da implementação: tarefas, ciclos e testes
     └── CONTEXTO.md                 # diário de bordo: decisões, estado atual e próximos passos
 ```
 
