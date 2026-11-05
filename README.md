@@ -43,6 +43,7 @@ biblioteca-tdd/
 ├── src/main/resources/
 │   └── config.properties.exemplo   # modelo da configuração de e-mail
 ├── src/test/java/br/edu/ifmt/biblioteca/
+│   ├── apoio/                      # relógio de teste, gerador fixo, canal falso, dados de teste
 │   ├── dominio/                    # um teste por classe de domínio
 │   ├── servico/                    # testes dos serviços com repositórios em memória
 │   └── repositorio/
@@ -50,6 +51,7 @@ biblioteca-tdd/
 │       └── sqlite/                 # testes de integração com SQLite em memória (*IT.java)
 └── docs/
     ├── requisitos.md               # Etapa 1: classes, métodos, regras de negócio e fases
+    ├── arquitetura.md              # camadas, princípios (SOLID, GoF, GRASP) e kit de testes
     └── CONTEXTO.md                 # diário de bordo: decisões, estado atual e próximos passos
 ```
 

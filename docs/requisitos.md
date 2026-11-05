@@ -151,7 +151,7 @@ As regras ficam em 12 classes de domínio que não dependem de tela nem de banco
 
 ![Camadas e classes: 6 serviços, 12 classes de domínio e infraestrutura](diagrama-classes.png)
 
-Um livro tem um ISBN e um ou mais exemplares; cada empréstimo liga um exemplar a um usuário, e cada registro de auditoria aponta o administrador que agiu. Os serviços recebem pelo construtor as calculadoras, o gerador de códigos, o canal de e-mail, o `Clock` e os repositórios, o que permite trocá-los por versões falsas nos testes.
+Um livro tem um ISBN e um ou mais exemplares; cada empréstimo liga um exemplar a um usuário, e cada registro de auditoria aponta o administrador que agiu. Os serviços recebem pelo construtor as calculadoras, o gerador de códigos, o canal de e-mail, o `Clock`, os repositórios, a `Transacao` e o `ProvedorDeOperador`, o que permite trocá-los por versões falsas nos testes. A organização em camadas e os princípios usados estão em [`arquitetura.md`](arquitetura.md).
 
 | Classe | Camada | Responsabilidade | Principais atributos |
 | --- | --- | --- | --- |
@@ -168,12 +168,12 @@ Um livro tem um ISBN e um ou mais exemplares; cada empréstimo liga um exemplar 
 | `Sessao` | Domínio | Período em que um administrador está conectado; expira depois de 30 minutos sem uso | `administrador`, `iniciadaEm`, `ultimoUsoEm` |
 | `RegistroAuditoria` | Domínio | Um fato da trilha, imutável: quem, quando, o quê, alvo, usuário afetado, detalhes e hash encadeado ao anterior | `sequencia`, `dataHora`, `cpfOperador`, `acao`, `alvo`, `cpfUsuario`, `detalhes`, `hashAnterior`, `hash` |
 | `GeradorCodigoAleatorio` | Segurança | Gera códigos de 6 dígitos com `SecureRandom` | `random` |
-| `AcessoService` | Serviço | Cadastro e desativação de administradores, entrada sem senha e controle da sessão | `AdministradorRepository`, `VerificacaoService`, `AuditoriaService`, `Clock` |
+| `AcessoService` | Serviço | Cadastro e desativação de administradores, entrada sem senha e controle da sessão; implementa `ProvedorDeOperador` | `AdministradorRepository`, `VerificacaoService`, `AuditoriaService`, `Transacao`, `Clock` |
 | `AuditoriaService` | Serviço | Grava, consulta e verifica a integridade da trilha | `AuditoriaRepository`, `Clock` |
 | `VerificacaoService` | Serviço | Gera, envia por e-mail e confere códigos; controla reenvio e bloqueio | `GeradorCodigo`, `CanalEnvio`, `AuditoriaService`, `Clock`, códigos ativos em memória |
-| `UsuarioService` | Serviço | Cadastro, consulta, edição, banimento e pagamento; não tem exclusão | `UsuarioRepository`, `AcessoService`, `AuditoriaService` |
-| `AcervoService` | Serviço | Cadastro em etapas, liberação, pesquisa e exclusão de livros; exemplares | `LivroRepository`, `EmprestimoRepository`, `AcessoService`, `AuditoriaService` |
-| `EmprestimoService` | Serviço | Empréstimo, renovação, devolução, perda e reposição, pedindo código quando a regra exige | `EmprestimoRepository`, `AcervoService`, `UsuarioService`, `VerificacaoService`, `AcessoService`, `AuditoriaService`, calculadoras, `PoliticaCirculacao` |
+| `UsuarioService` | Serviço | Cadastro, consulta, edição, banimento e pagamento; não tem exclusão | `UsuarioRepository`, `ProvedorDeOperador`, `AuditoriaService`, `Transacao` |
+| `AcervoService` | Serviço | Cadastro em etapas, liberação, pesquisa e exclusão de livros; exemplares | `LivroRepository`, `EmprestimoRepository`, `ProvedorDeOperador`, `AuditoriaService`, `Transacao` |
+| `EmprestimoService` | Serviço | Empréstimo, renovação, devolução, perda e reposição, pedindo código quando a regra exige | `EmprestimoRepository`, `LivroRepository`, `UsuarioRepository`, `VerificacaoService`, `ProvedorDeOperador`, `AuditoriaService`, `Transacao`, calculadoras, `PoliticaCirculacao` |
 
 **Tipos de apoio**
 
@@ -193,7 +193,9 @@ Um livro tem um ISBN e um ou mais exemplares; cada empréstimo liga um exemplar 
 | `ResultadoDevolucao` (record) | `diasAtraso`, `multa`, `valorReposicao`, `suspensoAte` — o que a tela mostra após devolução ou perda |
 | `GeradorCodigo` (interface) | `String gerar()` — nos testes, um gerador fixo devolve sempre o mesmo código |
 | `CanalEnvio` (interface) | `void enviar(String email, String assunto, String mensagem)` — implementada por `EmailCanalEnvio` (Jakarta Mail); nos testes, um canal falso só guarda a mensagem |
-| Repositórios (interfaces) | `LivroRepository`, `UsuarioRepository`, `AdministradorRepository`, `EmprestimoRepository` e `AuditoriaRepository`, este só com `adicionar` e consultas. Cada um tem versão em memória (testes de unidade) e em SQLite (programa) |
+| Repositórios (interfaces) | `LivroRepository`, `UsuarioRepository`, `AdministradorRepository`, `EmprestimoRepository` e `AuditoriaRepository`, este só com `adicionar` e consultas. Buscas devolvem `Optional`, e métodos `obter…` lançam `RegistroNaoEncontradoException`. Cada um tem versão em memória (testes de unidade) e em SQLite (programa) |
+| `Transacao` (interface) | `executar(Runnable)` e `executar(Supplier<T>)` — no SQLite, confirma no fim ou desfaz tudo se der exceção; nos testes, só executa |
+| `ProvedorDeOperador` (interface) | `Administrador operadorAtual()` — implementada por `AcessoService`; nos testes, um operador fixo ou uma versão sem sessão |
 
 **Exceções** (todas herdam de `BibliotecaException extends RuntimeException`, para a tela tratar num só `catch`): `CpfInvalidoException`, `IsbnInvalidoException`, `RegistroDuplicadoException`, `RegistroNaoEncontradoException`, `CadastroIncompletoException`, `ExemplarIndisponivelException`, `UsuarioBloqueadoException`, `EmprestimoNaoPermitidoException`, `LivroComEmprestimosException`, `RenovacaoNaoPermitidaException`, `ReposicaoNaoPermitidaException`, `CodigoVerificacaoInvalidoException`, `VerificacaoBloqueadaException`, `EnvioCodigoException`, `SessaoInvalidaException`, `OperacaoNaoAutorizadaException`. Dados inválidos usam `IllegalArgumentException` e operações fora de hora usam `IllegalStateException`, como no exemplo do enunciado.
 
@@ -505,7 +507,7 @@ A interface Swing é fina e só chama os serviços; as regras ficam no domínio 
 | RNF03 | Mensagens de erro em português, vindas da exceção e mostradas pela tela em `JOptionPane` |
 | RNF04 | Ficam fora do TDD de unidade: a interface, o envio real de e-mail e os repositórios SQLite. Domínio e serviços são feitos ciclo a ciclo |
 | RNF05 | Nenhuma regra lê a data ou a hora do sistema: as datas chegam por parâmetro, e os serviços que contam minutos recebem um `Clock`. Só a tela usa `LocalDate.now()` |
-| RNF06 | Dependências entram pelo construtor (calculadoras, gerador, canal de e-mail, repositórios, `Clock`), para os testes usarem versões falsas |
+| RNF06 | Dependências entram pelo construtor (calculadoras, gerador, canal de e-mail, repositórios, `Transacao`, `ProvedorDeOperador`, `Clock`), para os testes usarem versões falsas |
 | RNF07 | Dados gravados em SQLite no arquivo `biblioteca.db`, criado na primeira execução a partir de `schema.sql` |
 | RNF08 | Repositórios SQLite cobertos por testes de integração com banco em memória (`jdbc:sqlite::memory:`), rodando no `mvn verify` com o plugin Failsafe; esses testes também conferem a transação e os triggers da auditoria |
 | RNF09 | A única credencial do sistema é a senha de app do Gmail, usada para enviar e-mails e não para entrar; fica em `config.properties` fora do Git (no `.gitignore`) ou em variável de ambiente |
@@ -526,14 +528,15 @@ A interface Swing é fina e só chama os serviços; as regras ficam no domínio 
 
 ```
 src/main/java/br/edu/ifmt/biblioteca/
+  Aplicacao      cria os objetos reais, liga uns aos outros e abre a tela
   dominio/       Cpf, Isbn, Livro, Exemplar, Usuario, Administrador, Emprestimo,
                  CalculadoraMulta, CalculadoraSuspensao, CodigoVerificacao, Sessao,
                  RegistroAuditoria, enums e records
   verificacao/   GeradorCodigo, GeradorCodigoAleatorio, CanalEnvio, EmailCanalEnvio
-  repositorio/   interfaces dos 5 repositórios
+  repositorio/   interfaces dos 5 repositórios e Transacao
     sqlite/      implementações JDBC e ConexaoSqlite
   servico/       AcessoService, AuditoriaService, VerificacaoService,
-                 UsuarioService, AcervoService, EmprestimoService
+                 UsuarioService, AcervoService, EmprestimoService, ProvedorDeOperador
   excecao/       BibliotecaException e subclasses
   ui/            TelaEntrada, TelaPrincipal, PainelLivros, PainelUsuarios,
                  PainelEmprestimos, PainelAuditoria
@@ -541,9 +544,10 @@ src/main/resources/
   schema.sql                 tabelas e triggers
   config.properties.exemplo  modelo da configuração de e-mail (o arquivo real fica fora do Git)
 src/test/java/br/edu/ifmt/biblioteca/
+  apoio/         relógio de teste, gerador fixo, canal falso, operador fixo e dados de teste
   dominio/       um teste por classe (CpfTest, LivroTest, RegistroAuditoriaTest, ...)
-  servico/       testes dos serviços com repositórios em memória, canal falso e Clock fixo
-  repositorio/
+  servico/       testes dos serviços com repositórios em memória, canal falso e relógio de teste
+  repositorio/   testes de contrato, escritos uma vez para as duas versões
     memoria/     repositórios em memória usados nos testes de unidade
     sqlite/      testes de integração (AuditoriaRepositorySqliteIT, ...)
 ```

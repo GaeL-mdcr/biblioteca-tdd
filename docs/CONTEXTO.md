@@ -1,7 +1,7 @@
 # Diário de bordo
 
 Registro das decisões, do estado atual e dos próximos passos. Os requisitos completos estão em
-[`requisitos.md`](requisitos.md).
+[`requisitos.md`](requisitos.md), e a organização do código em [`arquitetura.md`](arquitetura.md).
 
 ## Regras do projeto
 
@@ -29,11 +29,13 @@ Registro das decisões, do estado atual e dos próximos passos. Os requisitos co
 | 05/11/2026 | Separação em fase 1 (71 métodos, compromisso) e fase 2 (só se sobrar tempo) |
 | 05/11/2026 | Etapa 2: repositório público, Maven com JUnit 5, Surefire, Failsafe e JaCoCo, GitHub Actions |
 | 05/11/2026 | Desenvolvimento no VS Code (Extension Pack for Java); Maven Wrapper 3.3.4 para não precisar instalar o Maven |
+| 05/11/2026 | Arquitetura em camadas com portas e adaptadores; receita única para os métodos de serviço; fakes em vez de Mockito; `ProvedorDeOperador` e `Transacao` como interfaces; `EmprestimoService` usa os repositórios direto |
 
 ## Estado atual
 
 - Etapa 1 (requisitos): feita, em `requisitos.md`.
 - Etapa 2 (configuração): estrutura vazia criada, sem código de produção nem testes.
+- Arquitetura e princípios decididos, em `arquitetura.md`.
 
 ## Próximos passos
 
